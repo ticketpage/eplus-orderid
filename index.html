@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>注文履歴検索ページ</title>
+</head>
+<body>
+
+    <h1>注文番号を入力してください</h1>
+    
+    <input type="text" id="orderNumber" placeholder="注文番号 (△△) を入力">
+    <button onclick="goToOrderHistory()">次へ進む</button>
+
+    <script>
+        /**
+         * 入力された注文番号をURLに組み込んで遷移する関数
+         */
+        function goToOrderHistory() {
+            // ① テキストボックスから値を取得
+            const orderNumber = document.getElementById('orderNumber').value;
+            
+            // ② 遷移先のURLを構築
+            // ユーザーが入力した値 (orderNumber) をURLの末尾に追加
+            const baseUrl = 'https://orderhistory.eplus.jp/api/edsdk/mypages/orders/';
+            const targetUrl = baseUrl + orderNumber;
+            
+            // ③ 新しいURLへ遷移
+            if (orderNumber) {
+                // 入力がある場合のみ遷移
+                window.location.href = targetUrl;
+            } else {
+                // 入力がない場合のメッセージ
+                alert('注文番号を入力してください。');
+            }
+        }
+    </script>
+
+</body>
+</html>
