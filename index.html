@@ -3,6 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>注文履歴検索ページ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5; /* 背景色を少しグレーに */
+            color: #333;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* テキストボックスのスタイル */
+        #orderNumber {
+            width: 400px; /* 幅を広く */
+            padding: 15px; /* パディングで高さを出す */
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px; /* 角を丸く */
+            font-size: 1.1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 軽い影 */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #orderNumber:focus {
+            border-color: #007bff; /* フォーカス時に色を変える */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            outline: none; /* デフォルトのアウトラインを消す */
+        }
+
+        /* ボタンのスタイル */
+        button {
+            background-color: #007bff; /* メインカラー */
+            color: white;
+            padding: 15px 30px; /* パディングを大きく */
+            border: none;
+            border-radius: 8px; /* 角を丸く */
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 影 */
+        }
+
+        button:hover {
+            background-color: #0056b3; /* ホバーで少し濃く */
+            transform: translateY(-2px); /* 少し浮き上がる */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0); /* クリック時に元に戻る */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
 
@@ -20,16 +80,13 @@
             const orderNumber = document.getElementById('orderNumber').value;
             
             // ② 遷移先のURLを構築
-            // ユーザーが入力した値 (orderNumber) をURLの末尾に追加
             const baseUrl = 'https://orderhistory.eplus.jp/api/edsdk/mypages/orders/';
             const targetUrl = baseUrl + orderNumber;
             
             // ③ 新しいURLへ遷移
             if (orderNumber) {
-                // 入力がある場合のみ遷移
                 window.location.href = targetUrl;
             } else {
-                // 入力がない場合のメッセージ
                 alert('注文番号を入力してください。');
             }
         }
