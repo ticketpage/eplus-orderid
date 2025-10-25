@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注文履歴検索ページ</title>
     <style>
         body {
@@ -12,55 +13,79 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f2f5; /* 背景色を少しグレーに */
+            padding: 20px; /* 小さい画面で端に寄りすぎないようにパディングを追加 */
+            background-color: #f0f2f5;
             color: #333;
+            box-sizing: border-box; /* パディングが幅に影響しないように設定 */
         }
 
         h1 {
             color: #333;
             margin-bottom: 30px;
+            text-align: center; /* 中央寄せ */
+            font-size: 1.5em; /* スマホで大きすぎないように */
         }
 
-        /* テキストボックスのスタイル */
+        /* 共通のテキストボックスのスタイル */
         #orderNumber {
-            width: 400px; /* 幅を広く */
-            padding: 15px; /* パディングで高さを出す */
+            width: 400px; /* デフォルトの幅 */
+            max-width: 100%; /* 画面幅を超えないように制限 */
+            padding: 15px;
             margin-bottom: 20px;
             border: 2px solid #ccc;
-            border-radius: 8px; /* 角を丸く */
+            border-radius: 8px;
             font-size: 1.1em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 軽い影 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* パディングを含めて幅を計算 */
         }
 
         #orderNumber:focus {
-            border-color: #007bff; /* フォーカス時に色を変える */
+            border-color: #007bff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            outline: none; /* デフォルトのアウトラインを消す */
+            outline: none;
         }
 
         /* ボタンのスタイル */
         button {
-            background-color: #007bff; /* メインカラー */
+            background-color: #007bff;
             color: white;
-            padding: 15px 30px; /* パディングを大きく */
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px; /* 角を丸く */
+            border-radius: 8px;
             font-size: 1.2em;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 影 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 100%; /* スマホでボタンを最大幅にする */
+            max-width: 400px; /* デスクトップと同じ最大幅 */
         }
 
         button:hover {
-            background-color: #0056b3; /* ホバーで少し濃く */
-            transform: translateY(-2px); /* 少し浮き上がる */
+            background-color: #0056b3;
+            transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
 
         button:active {
-            transform: translateY(0); /* クリック時に元に戻る */
+            transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* ------------------------------------------- */
+        /* スマートフォン向け最適化 (メディアクエリ) */
+        /* ------------------------------------------- */
+        @media (max-width: 600px) {
+            /* 画面幅が600px以下の場合に適用されるスタイル */
+            
+            #orderNumber, button {
+                width: 100%; /* テキストボックスとボタンの幅を画面いっぱいに広げる */
+            }
+
+            button {
+                padding: 18px; /* ボタンの高さを少し出して押しやすく */
+                font-size: 1.1em;
+            }
         }
     </style>
 </head>
@@ -72,18 +97,11 @@
     <button onclick="goToOrderHistory()">次へ進む</button>
 
     <script>
-        /**
-         * 入力された注文番号をURLに組み込んで遷移する関数
-         */
         function goToOrderHistory() {
-            // ① テキストボックスから値を取得
             const orderNumber = document.getElementById('orderNumber').value;
-            
-            // ② 遷移先のURLを構築
             const baseUrl = 'https://orderhistory.eplus.jp/api/edsdk/mypages/orders/';
             const targetUrl = baseUrl + orderNumber;
             
-            // ③ 新しいURLへ遷移
             if (orderNumber) {
                 window.location.href = targetUrl;
             } else {
