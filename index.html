@@ -1,114 +1,450 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>注文履歴検索ページ</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px; /* 小さい画面で端に寄りすぎないようにパディングを追加 */
-            background-color: #f0f2f5;
-            color: #333;
-            box-sizing: border-box; /* パディングが幅に影響しないように設定 */
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2fa">
+  <title>注文履歴検索</title>
 
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center; /* 中央寄せ */
-            font-size: 1.5em; /* スマホで大きすぎないように */
-        }
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Helvetica Neue", "Hiragino Kaku Gothic ProN",
+        "Yu Gothic", sans-serif;
+      --ink: #20212a;
+      --muted: #85869b;
+      --pink: #e9519b;
+      --pink-dark: #d93687;
+      --blue: #1684ff;
+      --glass: rgba(255, 255, 255, .57);
+      --line: rgba(90, 91, 115, .10);
+    }
 
-        /* 共通のテキストボックスのスタイル */
-        #orderNumber {
-            width: 400px; /* デフォルトの幅 */
-            max-width: 100%; /* 画面幅を超えないように制限 */
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            font-size: 1.1em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            box-sizing: border-box; /* パディングを含めて幅を計算 */
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        #orderNumber:focus {
-            border-color: #007bff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            outline: none;
-        }
+    html {
+      min-height: 100%;
+      background: #f2f2fa;
+    }
 
-        /* ボタンのスタイル */
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            width: 100%; /* スマホでボタンを最大幅にする */
-            max-width: 400px; /* デスクトップと同じ最大幅 */
-        }
+    body {
+      position: relative;
+      display: flex;
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding:
+        max(28px, env(safe-area-inset-top))
+        20px
+        max(28px, env(safe-area-inset-bottom));
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 12%,
+          rgba(172, 211, 255, .68), transparent 44%),
+        radial-gradient(ellipse at 94% 22%,
+          rgba(238, 190, 224, .55), transparent 42%),
+        radial-gradient(ellipse at 48% 100%,
+          rgba(207, 199, 255, .50), transparent 48%),
+        linear-gradient(145deg, #f8faff 0%, #f0f1f9 52%, #faf5fa 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-        button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
+    body::before,
+    body::after {
+      position: fixed;
+      z-index: 0;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      content: "";
+      filter: blur(55px);
+      pointer-events: none;
+    }
 
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+    body::before {
+      top: 8%;
+      left: -210px;
+      background: rgba(126, 190, 255, .22);
+    }
 
-        /* ------------------------------------------- */
-        /* スマートフォン向け最適化 (メディアクエリ) */
-        /* ------------------------------------------- */
-        @media (max-width: 600px) {
-            /* 画面幅が600px以下の場合に適用されるスタイル */
-            
-            #orderNumber, button {
-                width: 100%; /* テキストボックスとボタンの幅を画面いっぱいに広げる */
-            }
+    body::after {
+      right: -220px;
+      bottom: 4%;
+      background: rgba(239, 136, 196, .20);
+    }
 
-            button {
-                padding: 18px; /* ボタンの高さを少し出して押しやすく */
-                font-size: 1.1em;
-            }
-        }
-    </style>
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 430px;
+      margin: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 43px;
+      height: 43px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #ff8ac5, #e74497);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, .65),
+        0 6px 18px rgba(221, 65, 145, .20);
+      color: white;
+      font-size: 23px;
+      font-weight: 750;
+      letter-spacing: -2px;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 720;
+      letter-spacing: -.04em;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .12em;
+    }
+
+    .glass-card {
+      position: relative;
+      overflow: hidden;
+      padding: 30px 25px 25px;
+      border: 1px solid rgba(255, 255, 255, .78);
+      border-radius: 30px;
+      background: var(--glass);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 0 0 1px rgba(255, 255, 255, .16),
+        0 24px 60px rgba(67, 72, 113, .10),
+        0 3px 12px rgba(67, 72, 113, .04);
+      -webkit-backdrop-filter: blur(30px) saturate(160%);
+      backdrop-filter: blur(30px) saturate(160%);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 12px;
+      color: var(--pink-dark);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .13em;
+    }
+
+    .eyebrow::before {
+      width: 19px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--pink);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(23px, 6vw, 27px);
+      font-weight: 750;
+      letter-spacing: -.045em;
+      line-height: 1.4;
+    }
+
+    .description {
+      margin: 10px 0 28px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 10px;
+      color: rgba(32, 33, 42, .78);
+      font-size: 12px;
+      font-weight: 680;
+    }
+
+    .input-shell {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-shell input {
+      display: block;
+      width: 100%;
+      height: 56px;
+      padding: 0 16px;
+      border: 1px solid rgba(100, 104, 130, .12);
+      border-radius: 17px;
+      outline: none;
+      background: rgba(255, 255, 255, .66);
+      box-shadow:
+        inset 0 1px 3px rgba(38, 40, 60, .025),
+        0 2px 8px rgba(38, 40, 60, .025);
+      color: var(--ink);
+      font-size: 16px;
+      letter-spacing: .015em;
+      transition:
+        border-color .22s ease,
+        box-shadow .22s ease,
+        background .22s ease;
+      appearance: none;
+    }
+
+    .input-shell input::placeholder {
+      color: rgba(111, 113, 135, .48);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .input-shell input:focus {
+      border-color: rgba(233, 81, 155, .55);
+      background: rgba(255, 255, 255, .88);
+      box-shadow:
+        0 0 0 4px rgba(233, 81, 155, .09),
+        0 4px 14px rgba(233, 81, 155, .06);
+    }
+
+
+.primary-button {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 17px;
+
+  /* 控えめなイープラスピンク */
+  background: rgba(228, 67, 145, .90);
+
+  /* 薄いガラスの縁と柔らかい影 */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .22),
+    0 3px 10px rgba(205, 58, 130, .12);
+
+  color: #fff;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  cursor: pointer;
+
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+.primary-button::before {
+  display: none;
+}
+
+.primary-button .arrow {
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform .2s ease;
+}
+
+.primary-button:hover {
+  background: rgba(218, 55, 132, .94);
+  box-shadow: 0 4px 12px rgba(205, 58, 130, .16);
+}
+
+.primary-button:hover .arrow {
+  transform: translateX(2px);
+}
+
+.primary-button:active {
+  transform: scale(.99);
+  box-shadow: inset 0 1px 3px rgba(100, 20, 60, .10);
+}
+
+    .error-message {
+      display: none;
+      margin: -3px 0 13px;
+      color: #d8325d;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .error-message.is-visible {
+      display: block;
+    }
+
+    .bottom-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin: 20px 0 0;
+      color: rgba(111, 113, 135, .78);
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .bottom-note svg {
+      flex: none;
+      opacity: .65;
+    }
+
+    @media (max-width: 390px) {
+      body {
+        padding-right: 15px;
+        padding-left: 15px;
+      }
+
+      .glass-card {
+        padding: 25px 20px 22px;
+        border-radius: 26px;
+      }
+
+      .description {
+        margin-bottom: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <main class="page-shell">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">e+</div>
+      <div>
+        <div class="brand-name">注文履歴検索</div>
+        <div class="brand-subtitle">ORDER HISTORY</div>
+      </div>
+    </header>
 
-    <h1>注文番号を入力してください</h1>
-    
-    <input type="text" id="orderNumber" placeholder="注文番号 (△△) を入力">
-    <button onclick="goToOrderHistory()">次へ進む</button>
+    <section class="glass-card" aria-labelledby="pageTitle">
+      <div class="eyebrow">ORDER SEARCH</div>
 
-    <script>
-        function goToOrderHistory() {
-            const orderNumber = document.getElementById('orderNumber').value;
-            const baseUrl = 'https://orderhistory.eplus.jp/api/edsdk/mypages/orders/';
-            const targetUrl = baseUrl + orderNumber;
-            
-            if (orderNumber) {
-                window.location.href = targetUrl;
-            } else {
-                alert('注文番号を入力してください。');
-            }
-        }
-    </script>
+      <h1 id="pageTitle">注文番号を入力してください</h1>
+      <p class="description">
+        注文番号を入力すると、該当する注文履歴ページを開きます。
+      </p>
 
+      <form id="orderForm">
+        <label class="field-label" for="orderNumber">
+          注文番号
+        </label>
+
+        <div class="input-shell">
+          <input
+            type="text"
+            id="orderNumber"
+            name="orderNumber"
+            placeholder="注文番号を入力"
+            autocomplete="off"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+          >
+        </div>
+
+        <p class="error-message" id="errorMessage" role="alert">
+          注文番号を入力してください。
+        </p>
+
+        <button class="primary-button" type="submit">
+          <span>次へ進む</span>
+          <span class="arrow" aria-hidden="true">›</span>
+        </button>
+      </form>
+
+      <p class="bottom-note">
+        <svg width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8"
+             aria-hidden="true">
+          <rect x="5" y="10" width="14" height="11" rx="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+        </svg>
+        注文番号を確認のうえ、入力してください
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('orderForm');
+    const input = document.getElementById('orderNumber');
+    const errorMessage = document.getElementById('errorMessage');
+
+    function goToOrderHistory() {
+      const orderNumber = input.value.trim();
+
+      if (!orderNumber) {
+        errorMessage.classList.add('is-visible');
+        input.focus();
+        return;
+      }
+
+      errorMessage.classList.remove('is-visible');
+
+      const baseUrl =
+        'https://orderhistory.eplus.jp/api/edsdk/mypages/orders/';
+
+      window.location.href = baseUrl + encodeURIComponent(orderNumber);
+    }
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      goToOrderHistory();
+    });
+
+    input.addEventListener('input', function() {
+      if (input.value.trim()) {
+        errorMessage.classList.remove('is-visible');
+      }
+    });
+  </script>
 </body>
 </html>
